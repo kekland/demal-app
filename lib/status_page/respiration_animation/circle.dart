@@ -13,7 +13,7 @@ class SemiTransparentCircleWidget extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius),
         backgroundBlendMode: BlendMode.screen,
-        color: color.withOpacity(0.1),
+        color: color.withOpacity(0.06),
       ),
     );
   }

@@ -35,8 +35,8 @@ class _RespirationCircleWidgetState extends State<RespirationCircleWidget>
 
     animation = CurvedAnimation(
         parent: controller,
-        curve: Curves.easeInOut,
-        reverseCurve: Curves.easeInOut);
+        curve: Curves.decelerate,
+        reverseCurve: Curves.fastOutSlowIn);
     controller.forward();
   }
 
@@ -48,43 +48,52 @@ class _RespirationCircleWidgetState extends State<RespirationCircleWidget>
 
   @override
   Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: AlwaysStoppedAnimation(0.15 + (0.85 * animation.value)),
-      child: RotationTransition(
-        turns: AlwaysStoppedAnimation(animation.value * 0.5),
-        child: Stack(
-          children: [
-            Transform(
-              transform: Matrix4.translationValues(
-                  -35.0 * animation.value, -50.0 * animation.value, 0.0),
-              child: SemiTransparentCircleWidget(radius: 62.5, color: Colors.white),
-            ),
-            Transform(
-              transform: Matrix4.translationValues(
-                  35.0 * animation.value, -50.0 * animation.value, 0.0),
-              child: SemiTransparentCircleWidget(radius: 62.5, color: Colors.white),
-            ),
-            Transform(
-              transform: Matrix4.translationValues(
-                  -60.0 * animation.value, 0.0 * animation.value, 0.0),
-              child: SemiTransparentCircleWidget(radius: 62.5, color: Colors.white),
-            ),
-            Transform(
-              transform: Matrix4.translationValues(
-                  60.0 * animation.value, 0.0 * animation.value, 0.0),
-              child: SemiTransparentCircleWidget(radius: 62.5, color: Colors.white),
-            ),
-            Transform(
-              transform: Matrix4.translationValues(
-                  -35.0 * animation.value, 50.0 * animation.value, 0.0),
-              child: SemiTransparentCircleWidget(radius: 62.5, color: Colors.white),
-            ),
-            Transform(
-              transform: Matrix4.translationValues(
-                  35.0 * animation.value, 50.0 * animation.value, 0.0),
-              child: SemiTransparentCircleWidget(radius: 62.5, color: Colors.white),
-            ),
-          ],
+    return Opacity(
+      opacity: animation.value,
+      child: ScaleTransition(
+        scale: animation,
+        child: RotationTransition(
+          turns: AlwaysStoppedAnimation(animation.value * 0.5),
+          child: Stack(
+            children: [
+              Transform(
+                transform: Matrix4.translationValues(
+                    -35.0 * animation.value, -50.0 * animation.value, 0.0),
+                child: SemiTransparentCircleWidget(
+                    radius: 100.0, color: Colors.white),
+              ),
+              Transform(
+                transform: Matrix4.translationValues(
+                    35.0 * animation.value, -50.0 * animation.value, 0.0),
+                child: SemiTransparentCircleWidget(
+                    radius: 100.0, color: Colors.white),
+              ),
+              Transform(
+                transform: Matrix4.translationValues(
+                    -60.0 * animation.value, 0.0 * animation.value, 0.0),
+                child: SemiTransparentCircleWidget(
+                    radius: 100.0, color: Colors.white),
+              ),
+              Transform(
+                transform: Matrix4.translationValues(
+                    60.0 * animation.value, 0.0 * animation.value, 0.0),
+                child: SemiTransparentCircleWidget(
+                    radius: 100.0, color: Colors.white),
+              ),
+              Transform(
+                transform: Matrix4.translationValues(
+                    -35.0 * animation.value, 50.0 * animation.value, 0.0),
+                child: SemiTransparentCircleWidget(
+                    radius: 100.0, color: Colors.white),
+              ),
+              Transform(
+                transform: Matrix4.translationValues(
+                    35.0 * animation.value, 50.0 * animation.value, 0.0),
+                child: SemiTransparentCircleWidget(
+                    radius: 100.0, color: Colors.white),
+              ),
+            ],
+          ),
         ),
       ),
     );

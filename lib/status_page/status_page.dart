@@ -30,7 +30,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
   double humidityLevel = 50.0, gasLevel = 500.0, dustLevel = -1.0;
 
   double calculatePoints() {
-    return animation.value * 100.0;
+    return 100.0;
     double humidityQuality = (humidityLevel - 50.0).abs() / 50.0;
     double gasQuality = 0.0;
     if (gasLevel < 200.0) {
@@ -157,11 +157,11 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
                 ),
               ),
               Align(
-                alignment: AlignmentDirectional(0.0, 0.15),
+                alignment: AlignmentDirectional(0.0, -0.18),
                 child: RespirationCircleWidget(radius: 128.0),
               ),
-              /*
-              Align(
+              
+              /*Align(
                 alignment: AlignmentDirectional.bottomStart,
                 child: WaveBackgroundWidget(
                   height: 200.0,
