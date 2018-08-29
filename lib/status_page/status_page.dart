@@ -6,6 +6,7 @@ import 'package:dem_al/status_page/app_title.dart';
 import 'package:dem_al/status_page/colored_background.dart';
 import 'package:dem_al/status_page/data_widget.dart';
 import 'package:dem_al/status_page/slider_percent.dart';
+import 'package:dem_al/status_page/wave_background/wave_background.dart';
 import 'package:dem_al/tab_widget.dart';
 import 'package:dem_al/title_text_widget.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
   double humidityLevel = 50.0, gasLevel = 500.0, dustLevel = -1.0;
 
   double calculatePoints() {
+    return animation.value * 100.0;
     double humidityQuality = (humidityLevel - 50.0).abs() / 50.0;
     double gasQuality = 0.0;
     if (gasLevel < 200.0) {
@@ -58,7 +60,6 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
       return 'Bad';
     }
   }
-
 
   initState() {
     super.initState();
@@ -98,62 +99,81 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
         animation: animation,
         qualityPoints: calculatePoints(),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-            child: Stack(
-              children: [
-                Align(
-                  alignment: AlignmentDirectional.topCenter,
-                  child: AppTitleWidget(),
+          child: Stack(
+            children: [
+              Align(
+                alignment: AlignmentDirectional.topCenter,
+                child: AppTitleWidget(),
+              ),
+              Align(
+                alignment: AlignmentDirectional.topEnd,
+                child: IconButton(
+                  icon: Icon(Icons.settings),
+                  color: Colors.white,
+                  onPressed: () {},
                 ),
-                Align(
-                  alignment: AlignmentDirectional.topEnd,
-                  child: IconButton(
-                    icon: Icon(Icons.settings),
-                    color: Colors.white,
-                    onPressed: () {},
-                  ),
-                ),
-                Align(
-                  alignment: AlignmentDirectional.topStart,
+              ),
+              Align(
+                alignment: AlignmentDirectional.topStart,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                   child: SliderPercentWidget(
                     percentage: calculatePoints() / 100.0,
                   ),
                 ),
-                Align(
-                  alignment: AlignmentDirectional(0.0, -0.15),
-                  child: AirQualityWidget(
-                    qualityLevel: calculatePoints(),
+              ),
+              Align(
+                alignment: AlignmentDirectional(0.0, -0.15),
+                child: AirQualityWidget(
+                  qualityLevel: calculatePoints(),
+                ),
+              ),
+              Align(
+                alignment: AlignmentDirectional.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      bottom: 24.0, left: 8.0, right: 8.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      DataWidget(
+                        value: '${humidityLevel.round()}%',
+                        description: 'Humidity',
+                        iconAsset: 'assets/icons/water-percent.svg',
+                      ),
+                      DataWidget(
+                        value: getGasLevel(),
+                        description: 'Gases',
+                        iconAsset: 'assets/icons/periodic-table-co2.svg',
+                      ),
+                      DataWidget(
+                        value: 'No data',
+                        description: 'Dust',
+                        iconAsset: 'assets/icons/weather-windy.svg',
+                      ),
+                    ],
                   ),
                 ),
-                Align(
-                  alignment: AlignmentDirectional.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 24.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        DataWidget(
-                          value: '${humidityLevel.round()}%',
-                          description: 'Humidity',
-                          iconAsset: 'assets/icons/water-percent.svg',
-                        ),
-                        DataWidget(
-                          value: getGasLevel(),
-                          description: 'Gases',
-                          iconAsset: 'assets/icons/periodic-table-co2.svg',
-                        ),
-                        DataWidget(
-                          value: 'No data',
-                          description: 'Dust',
-                          iconAsset: 'assets/icons/weather-windy.svg',
-                        ),
-                      ],
-                    ),
-                  ),
+              ),
+              Align(
+                alignment: AlignmentDirectional.bottomStart,
+                child: WaveBackgroundWidget(
+                  height: 200.0,
+                  amplitude: 30.0,
+                  animationDuration: Duration(milliseconds: 3287),
+                  xOffset: 10.0,
                 ),
-              ],
-            ),
+              ),
+              Align(
+                alignment: AlignmentDirectional.bottomStart,
+                child: WaveBackgroundWidget(
+                  height: 190.0,
+                  amplitude: 25.0,
+                  animationDuration: Duration(milliseconds: 2119),
+                  xOffset: 0.0,
+                ),
+              ),
+            ],
           ),
         ),
       ),
