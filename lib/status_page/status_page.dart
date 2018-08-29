@@ -5,6 +5,7 @@ import 'package:dem_al/status_page/air_quality_widget.dart';
 import 'package:dem_al/status_page/app_title.dart';
 import 'package:dem_al/status_page/colored_background.dart';
 import 'package:dem_al/status_page/data_widget.dart';
+import 'package:dem_al/status_page/respiration_animation/respiration_circle.dart';
 import 'package:dem_al/status_page/slider_percent.dart';
 import 'package:dem_al/status_page/wave_background/wave_background.dart';
 import 'package:dem_al/tab_widget.dart';
@@ -154,7 +155,12 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
                     ],
                   ),
                 ),
-              ),/*
+              ),
+              Align(
+                alignment: AlignmentDirectional(0.0, 0.15),
+                child: RespirationCircleWidget(radius: 128.0),
+              ),
+              /*
               Align(
                 alignment: AlignmentDirectional.bottomStart,
                 child: WaveBackgroundWidget(
