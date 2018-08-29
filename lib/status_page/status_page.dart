@@ -154,7 +154,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
                     ],
                   ),
                 ),
-              ),
+              ),/*
               Align(
                 alignment: AlignmentDirectional.bottomStart,
                 child: WaveBackgroundWidget(
@@ -172,7 +172,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
                   animationDuration: Duration(milliseconds: 2119),
                   xOffset: 0.0,
                 ),
-              ),
+              ),*/
             ],
           ),
         ),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class GradientBackgroundWidget extends StatelessWidget {
@@ -17,7 +19,7 @@ class GradientBackgroundWidget extends StatelessWidget {
         begin: AlignmentDirectional.topStart,
         end: AlignmentDirectional.bottomEnd,
       ),
-      qualityPoints / 100.0,
+      sqrt(qualityPoints / 100.0),
     );
     /*return LinearGradient(
       colors: getBackgroundColors(qualityPoints),
