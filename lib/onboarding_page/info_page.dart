@@ -11,9 +11,10 @@ class InfoPageData {
 }
 
 class InfoPage extends StatelessWidget {
+  final double switchAnimation;
   final InfoPageData data;
 
-  const InfoPage({Key key, this.data}) : super(key: key);
+  const InfoPage({Key key, this.data, this.switchAnimation}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -21,12 +22,8 @@ class InfoPage extends StatelessWidget {
       child: Stack(
         children: [
           Align(
-              alignment: AlignmentDirectional(0.0, -0.5),
-              child: RespirationCircleWidget(
-                opacity: 0.15,
-                minimum: 0.5,
-              )),
-          Align(alignment: AlignmentDirectional(0.0, -0.41), child: data.icon),
+              alignment: AlignmentDirectional(0.0, -0.41),
+              child: Opacity(opacity: switchAnimation, child: data.icon)),
           Align(
             alignment: AlignmentDirectional(0.0, 0.65),
             child: Column(

@@ -75,8 +75,8 @@ class _OnboardingPageState extends State<OnboardingPage>
     if (index == 0) {
       return LinearGradient(
         colors: [
-          Color.lerp(Colors.green, Colors.lime, animation.value),
-          Color.lerp(Colors.teal, Colors.lightGreen, animation.value),
+          Color.lerp(Colors.green, Colors.teal, animation.value),
+          Color.lerp(Colors.teal, Colors.green, animation.value),
         ],
         begin: AlignmentDirectional.topStart,
         end: AlignmentDirectional.bottomEnd,
@@ -84,7 +84,7 @@ class _OnboardingPageState extends State<OnboardingPage>
     } else if (index == 1) {
       return LinearGradient(
         colors: [
-          Color.lerp(Colors.teal, Colors.cyan, animation.value),
+          Color.lerp(Colors.blue, Colors.teal, animation.value),
           Color.lerp(Colors.lightBlue, Colors.indigo, animation.value),
         ],
         begin: AlignmentDirectional.topStart,
@@ -118,11 +118,7 @@ class _OnboardingPageState extends State<OnboardingPage>
         title: 'Welcome!',
         description:
             'Welcome to DemAl! This application will help you in case of asthma attack.',
-        icon: Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 64.0,
-        ),
+        icon: Container(),
         action: FloatingActionButton.extended(
           label: Text('Next'),
           icon: Icon(Icons.chevron_right),
@@ -133,7 +129,7 @@ class _OnboardingPageState extends State<OnboardingPage>
       ),
       InfoPageData(
         title: 'Connect to your device',
-        description: 'Select your DemAl device from the list below',
+        description: 'Select your DemAl device from the list of bluetooth devices',
         icon: Icon(
           Icons.bluetooth,
           color: Colors.white,
@@ -178,7 +174,7 @@ class _OnboardingPageState extends State<OnboardingPage>
       ),
       InfoPageData(
         title: 'All set!',
-        description: '',
+        description: 'You are now ready to use DemAl!',
         icon: Icon(
           Icons.check,
           color: Colors.white,
@@ -193,18 +189,25 @@ class _OnboardingPageState extends State<OnboardingPage>
         ),
       ),
     ];
+    InfoPageData emptyPage = InfoPageData(title: '', action: Container(), description: '', icon: Container());
     InfoPageData prevPageDisplay =
-        (selected - 1 == -1) ? pages[pages.length - 1] : pages[selected - 1];
+        (selected - 1 == -1) ? emptyPage : pages[selected - 1];
     InfoPageData currentPageDisplay = pages[selected];
-    InfoPageData nextPageDisplay =
-        (selected + 1 == pages.length) ? pages[0] : pages[selected + 1];
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: switchAnimation.value,
+          gradient: (!switchAnimation.isCompleted)
+              ? switchAnimation.value
+              : getGradient(selected),
         ),
         child: Stack(
           children: <Widget>[
+            Align(
+                alignment: AlignmentDirectional(0.0, -0.46),
+                child: RespirationCircleWidget(
+                  opacity: 0.15,
+                  minimum: 0.5,
+                )),
             Transform(
               transform: Matrix4.translationValues(
                   -MediaQuery.of(context).size.width *
@@ -215,6 +218,8 @@ class _OnboardingPageState extends State<OnboardingPage>
                 opacity: 1.0 - switchTransformAnimation.value,
                 child: InfoPage(
                   data: prevPageDisplay,
+                  switchAnimation: (1.0 - switchTransformAnimation.value * 8.0)
+                      .clamp(0.0, 1.0),
                 ),
               ),
             ),
@@ -228,6 +233,8 @@ class _OnboardingPageState extends State<OnboardingPage>
                 opacity: switchTransformAnimation.value,
                 child: InfoPage(
                   data: currentPageDisplay,
+                  switchAnimation:
+                      (switchTransformAnimation.value * 8.0).clamp(0.0, 1.0),
                 ),
               ),
             ),
