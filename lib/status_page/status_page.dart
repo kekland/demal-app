@@ -1,6 +1,8 @@
+import 'package:dem_al/bottom_sheet_fix.dart';
 import 'package:dem_al/circular_material.dart';
 import 'package:dem_al/linear_gradient_tween.dart';
 import 'package:dem_al/percentage_display.dart';
+import 'package:dem_al/settings_page/settings_modal.dart';
 import 'package:dem_al/status_page/air_quality_widget.dart';
 import 'package:dem_al/status_page/app_title.dart';
 import 'package:dem_al/status_page/colored_background.dart';
@@ -93,6 +95,12 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
     startAnimationController.forward();
   }
 
+  openSettings(BuildContext context) {
+    showModalBottomSheetFixed(context: context, builder: (context) {
+      return SettingsModal();
+    }, dismissOnTap: false, resizeToAvoidBottomPadding: true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,7 +119,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
                 child: IconButton(
                   icon: Icon(Icons.settings),
                   color: Colors.white,
-                  onPressed: () {},
+                  onPressed: () {openSettings(context);},
                 ),
               ),
               Align(
@@ -158,27 +166,8 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
               ),
               Align(
                 alignment: AlignmentDirectional(0.0, -0.18),
-                child: RespirationCircleWidget(opacity: 0.07),
+                child: RespirationCircleWidget(opacity: 0.07, minimum: 0.25,),
               ),
-              
-              /*Align(
-                alignment: AlignmentDirectional.bottomStart,
-                child: WaveBackgroundWidget(
-                  height: 200.0,
-                  amplitude: 30.0,
-                  animationDuration: Duration(milliseconds: 3287),
-                  xOffset: 10.0,
-                ),
-              ),
-              Align(
-                alignment: AlignmentDirectional.bottomStart,
-                child: WaveBackgroundWidget(
-                  height: 190.0,
-                  amplitude: 25.0,
-                  animationDuration: Duration(milliseconds: 2119),
-                  xOffset: 0.0,
-                ),
-              ),*/
             ],
           ),
         ),

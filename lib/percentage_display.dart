@@ -44,6 +44,3 @@ class PercentageDisplayWidget extends StatelessWidget {
     );
   }
 }
-
-class Math {
-}
