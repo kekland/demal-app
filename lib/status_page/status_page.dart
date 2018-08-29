@@ -158,7 +158,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
               ),
               Align(
                 alignment: AlignmentDirectional(0.0, -0.18),
-                child: RespirationCircleWidget(radius: 128.0),
+                child: RespirationCircleWidget(opacity: 0.07),
               ),
               
               /*Align(

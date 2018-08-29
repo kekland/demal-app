@@ -1,3 +1,4 @@
+import 'package:dem_al/onboarding_page/onboarding_page.dart';
 import 'package:dem_al/status_page/status_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new StatusPage(),
+      home: new OnboardingPage(),
     );
   }
 }

@@ -2,8 +2,9 @@ import 'package:dem_al/status_page/respiration_animation/circle.dart';
 import 'package:flutter/material.dart';
 
 class RespirationCircleWidget extends StatefulWidget {
-  final double radius;
-  RespirationCircleWidget({this.radius});
+  final double opacity;
+  final double minimum;
+  RespirationCircleWidget({this.opacity, this.minimum = 0.0});
 
   @override
   _RespirationCircleWidgetState createState() =>
@@ -19,7 +20,7 @@ class _RespirationCircleWidgetState extends State<RespirationCircleWidget>
   void initState() {
     super.initState();
     controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 4));
+        AnimationController(vsync: this, lowerBound: widget.minimum, duration: Duration(seconds: 4));
 
     controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -36,7 +37,7 @@ class _RespirationCircleWidgetState extends State<RespirationCircleWidget>
     animation = CurvedAnimation(
         parent: controller,
         curve: Curves.decelerate,
-        reverseCurve: Curves.fastOutSlowIn);
+        reverseCurve: Curves.decelerate);
     controller.forward();
   }
 
@@ -60,37 +61,37 @@ class _RespirationCircleWidgetState extends State<RespirationCircleWidget>
                 transform: Matrix4.translationValues(
                     -35.0 * animation.value, -50.0 * animation.value, 0.0),
                 child: SemiTransparentCircleWidget(
-                    radius: 100.0, color: Colors.white),
+                    radius: 100.0, color: Colors.white.withOpacity(widget.opacity)),
               ),
               Transform(
                 transform: Matrix4.translationValues(
                     35.0 * animation.value, -50.0 * animation.value, 0.0),
                 child: SemiTransparentCircleWidget(
-                    radius: 100.0, color: Colors.white),
+                    radius: 100.0, color: Colors.white.withOpacity(widget.opacity)),
               ),
               Transform(
                 transform: Matrix4.translationValues(
                     -60.0 * animation.value, 0.0 * animation.value, 0.0),
                 child: SemiTransparentCircleWidget(
-                    radius: 100.0, color: Colors.white),
+                    radius: 100.0, color: Colors.white.withOpacity(widget.opacity)),
               ),
               Transform(
                 transform: Matrix4.translationValues(
                     60.0 * animation.value, 0.0 * animation.value, 0.0),
                 child: SemiTransparentCircleWidget(
-                    radius: 100.0, color: Colors.white),
+                    radius: 100.0, color: Colors.white.withOpacity(widget.opacity)),
               ),
               Transform(
                 transform: Matrix4.translationValues(
                     -35.0 * animation.value, 50.0 * animation.value, 0.0),
                 child: SemiTransparentCircleWidget(
-                    radius: 100.0, color: Colors.white),
+                    radius: 100.0, color: Colors.white.withOpacity(widget.opacity)),
               ),
               Transform(
                 transform: Matrix4.translationValues(
                     35.0 * animation.value, 50.0 * animation.value, 0.0),
                 child: SemiTransparentCircleWidget(
-                    radius: 100.0, color: Colors.white),
+                    radius: 100.0, color: Colors.white.withOpacity(widget.opacity)),
               ),
             ],
           ),
