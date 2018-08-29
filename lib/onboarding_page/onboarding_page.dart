@@ -3,6 +3,9 @@ import 'package:dem_al/onboarding_page/info_page.dart';
 import 'package:dem_al/onboarding_page/ticker.dart';
 import 'package:dem_al/status_page/respiration_animation/respiration_circle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:contact_picker/contact_picker.dart';
 
 class OnboardingPage extends StatefulWidget {
   @override
@@ -47,8 +50,11 @@ class _OnboardingPageState extends State<OnboardingPage>
     });
 
     controller.forward();
+    switchController.forward();
   }
 
+  var scanSubscription;
+  final ContactPicker contactPicker = new ContactPicker();
   nextPage() {
     setState(() {
       if (selected == 3) {
@@ -67,8 +73,41 @@ class _OnboardingPageState extends State<OnboardingPage>
 
         switchController.forward(from: 0.0);
         selected++;
+
+        if (selected == 1) {
+          FlutterBlue blue = FlutterBlue.instance;
+          scanSubscription =
+              blue.scan(scanMode: ScanMode.balanced).listen((result) async {
+            if (result.device.name == 'Mi Band 3') {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString('device_id', result.device.id.id);
+              nextPage();
+            }
+          });
+        } else if (selected == 2) {
+          scanSubscription.cancel();
+        }
+        else if(selected == 3) {
+          Navigator.of(context).pushReplacementNamed('/status');
+        }
       }
     });
+  }
+
+  selectContact() async {
+    Contact contact = await contactPicker.selectContact();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('phone_number', contact.phoneNumber.number);
+    prefs.setString('phone_name', contact.fullName);
+    nextPage();
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    controller.dispose();
+    switchController.dispose();
+    scanSubscription.cancel();
   }
 
   LinearGradient getGradient(int index) {
@@ -93,8 +132,8 @@ class _OnboardingPageState extends State<OnboardingPage>
     } else if (index == 2) {
       return LinearGradient(
         colors: [
-          Color.lerp(Colors.purple, Colors.deepPurple, animation.value),
-          Color.lerp(Colors.pink, Colors.indigo, animation.value),
+          Color.lerp(Colors.indigo, Colors.red, animation.value),
+          Color.lerp(Colors.pink, Colors.deepPurple, animation.value),
         ],
         begin: AlignmentDirectional.topStart,
         end: AlignmentDirectional.bottomEnd,
@@ -129,18 +168,33 @@ class _OnboardingPageState extends State<OnboardingPage>
       ),
       InfoPageData(
         title: 'Connect to your device',
-        description: 'Select your DemAl device from the list of bluetooth devices',
+        description:
+            'Turn on your DemAl device and wait for a moment. Make sure that your device is paired with your phone.',
         icon: Icon(
           Icons.bluetooth,
           color: Colors.white,
           size: 64.0,
         ),
-        action: FloatingActionButton.extended(
-          label: Text('Select device'),
-          icon: Icon(Icons.chevron_right),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          onPressed: nextPage,
+        action: Material(
+          borderRadius: BorderRadius.circular(100.0),
+          elevation: 2.0,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 16.0),
+                Text(
+                  'Looking for your device',
+                  style: TextStyle(
+                    letterSpacing: 1.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
       InfoPageData(
@@ -160,7 +214,7 @@ class _OnboardingPageState extends State<OnboardingPage>
               icon: Icon(Icons.chevron_right),
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
-              onPressed: nextPage,
+              onPressed: selectContact,
             ),
             FloatingActionButton.extended(
               label: Text('Cancel'),
@@ -189,7 +243,8 @@ class _OnboardingPageState extends State<OnboardingPage>
         ),
       ),
     ];
-    InfoPageData emptyPage = InfoPageData(title: '', action: Container(), description: '', icon: Container());
+    InfoPageData emptyPage = InfoPageData(
+        title: '', action: Container(), description: '', icon: Container());
     InfoPageData prevPageDisplay =
         (selected - 1 == -1) ? emptyPage : pages[selected - 1];
     InfoPageData currentPageDisplay = pages[selected];

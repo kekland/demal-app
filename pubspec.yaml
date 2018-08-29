@@ -18,6 +18,8 @@ dependencies:
   cupertino_icons: ^0.1.2
   flutter_svg:
   shared_preferences:
+  flutter_blue:
+  contact_picker:
 
 dev_dependencies:
   flutter_test:

@@ -31,6 +31,7 @@ class InfoPage extends StatelessWidget {
               children: [
                 Text(
                   data.title,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24.0,
