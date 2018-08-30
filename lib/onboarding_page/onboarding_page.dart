@@ -61,7 +61,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   nextPage() {
     setState(() {
       if (selected == 3) {
-          Navigator.of(context).pushReplacementNamed('/status');
+        Navigator.of(context).pushReplacementNamed('/status');
       } else {
         switchAnimation = LinearGradientTween(
           begin: getGradient(selected),
@@ -73,17 +73,16 @@ class _OnboardingPageState extends State<OnboardingPage>
 
         if (selected == 1) {
           FlutterBlue blue = FlutterBlue.instance;
-          if(!MOCK_BLUETOOTH_DEVICE) {
-          scanSubscription =
-              blue.scan(scanMode: ScanMode.balanced).listen((result) async {
-            if (result.device.name == 'DemAl') {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.setString('device_id', result.device.id.id);
-              nextPage();
-            }
-          });
-          }
-          else {
+          if (!MOCK_BLUETOOTH_DEVICE) {
+            scanSubscription =
+                blue.scan(scanMode: ScanMode.balanced).listen((result) async {
+              if (result.device.name == 'DemAl') {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.setString('device_id', result.device.id.id);
+                nextPage();
+              }
+            });
+          } else {
             new Future.delayed(Duration(seconds: 2), () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               prefs.setString('device_id', '10:11:12:13:14:15');
@@ -91,7 +90,7 @@ class _OnboardingPageState extends State<OnboardingPage>
             });
           }
         } else if (selected == 2) {
-          if(!MOCK_BLUETOOTH_DEVICE) {
+          if (!MOCK_BLUETOOTH_DEVICE) {
             scanSubscription.cancel();
           }
         }

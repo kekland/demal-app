@@ -1,16 +1,24 @@
+import 'package:dem_al/fluro/application.dart';
+import 'package:dem_al/fluro/handlers.dart';
 import 'package:dem_al/onboarding_page/onboarding_page.dart';
 import 'package:dem_al/status_page/status_page.dart';
+import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
-  String defaultRoute = 'onboarding';
+  String defaultRoute = '/onboarding';
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool onboardingPassed = prefs.getBool('onboarding_passed');
   if (onboardingPassed != null && onboardingPassed) {
-    defaultRoute = 'status';
+    defaultRoute = '/';
   }
+
+  final router = new Router();
+  Routes.configureRoutes(router);
+  Application.router = router;
+
   runApp(new MyApp(
     defaultRoute: defaultRoute,
   ));
@@ -18,11 +26,12 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final String defaultRoute;
-
   const MyApp({Key key, this.defaultRoute}) : super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
@@ -32,15 +41,8 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: (defaultRoute == 'onboarding')? OnboardingPage() : StatusPage(),
-      routes: {
-        '/onboarding': (context) {
-          return OnboardingPage();
-        },
-        '/status': (context) {
-          return StatusPage();
-        }
-      },
+      onGenerateRoute: Application.router.generator,
+      initialRoute: defaultRoute,
     );
   }
 }
