@@ -47,7 +47,9 @@ class _SettingsModalState extends State<SettingsModal> {
                 textColor: Colors.white,
                 onPressed: () {}),
           ),
+          SizedBox(height: 8.0),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               FloatingActionButton.extended(
                 icon: Icon(Icons.play_arrow),

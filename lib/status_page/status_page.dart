@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StatusPage extends StatefulWidget {
   @override
@@ -66,10 +67,19 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
     }
   }
 
+  setOnboardingViewed() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('onboarding_passed', true);
+  }
+
   StreamSubscription subscription;
   initState() {
     DemAlPlatform.launchService();
-    subscription = DemAlPlatform.stream.receiveBroadcastStream().listen(onDataReceive);
+    subscription =
+        DemAlPlatform.stream.receiveBroadcastStream().listen(onDataReceive);
+    DemAlPlatform.eventSinkAvailable();
+
+    setOnboardingViewed();
 
     super.initState();
     controller =

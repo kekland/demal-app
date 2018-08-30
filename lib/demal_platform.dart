@@ -23,4 +23,12 @@ class DemAlPlatform {
       print('Failure: ${e.message}');
     }
   }
+  static Future<Null> eventSinkAvailable() async {
+    try {
+      await platform.invokeMethod('eventSinkAvailable');
+      print('Success');
+    } on PlatformException catch (e) {
+      print('Failure: ${e.message}');
+    }
+  }
 }

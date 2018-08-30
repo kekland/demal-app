@@ -64,6 +64,10 @@ public class MainActivity extends FlutterActivity {
                             result.error("CANNOT_STOP", "Cannot stop service: Service already stopped.", null);
                         }
                     }
+                    else if(methodCall.method.equals("eventSinkAvailable")) {
+                        eventSinkAvailable = true;
+                        result.success(null);
+                    }
                     else {
                         result.notImplemented();
                     }
@@ -71,12 +75,6 @@ public class MainActivity extends FlutterActivity {
             }
     );
   }
-
-    @Override
-    protected void onResume() {
-      eventSinkAvailable = true;
-        super.onResume();
-    }
 
     @Override
     protected void onPause() {
