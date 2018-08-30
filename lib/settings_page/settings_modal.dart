@@ -1,3 +1,4 @@
+import 'package:dem_al/demal_platform.dart';
 import 'package:dem_al/settings_page/setting_card.dart';
 import 'package:flutter/material.dart';
 
@@ -45,6 +46,20 @@ class _SettingsModalState extends State<SettingsModal> {
                 child: Text('Change'),
                 textColor: Colors.white,
                 onPressed: () {}),
+          ),
+          Row(
+            children: [
+              FloatingActionButton.extended(
+                icon: Icon(Icons.play_arrow),
+                label: Text('Start service'),
+                onPressed: DemAlPlatform.launchService,
+              ),
+              FloatingActionButton.extended(
+                icon: Icon(Icons.stop),
+                label: Text('Stop service'),
+                onPressed: DemAlPlatform.stopService,
+              ),
+            ],
           ),
         ],
       ),

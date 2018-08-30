@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/notification"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="24dp"
+    android:paddingRight="24dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:orientation="horizontal">
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="6dp"
+            android:orientation="horizontal">
+            <FrameLayout
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:background="@drawable/ic_cloud_black_24dp" />
+            <FrameLayout
+                android:layout_width="8dp"
+                android:layout_height="1dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="DemAl"
+                android:textColor="@color/colorPrimary"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Air quality: " />
+            <TextView
+                android:id="@+id/airQualityDataText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:text="Good" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Humidity: " />
+            <TextView
+                android:id="@+id/humidityDataText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:text="32%" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dust particles: " />
+            <TextView
+                android:id="@+id/dustDataText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:text="None" />
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/airQualityDataPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="60"
+            android:textSize="28sp"
+            android:textColor="@color/colorPrimary"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quality"
+                android:textSize="12sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="/100"
+                android:textSize="12sp"
+                android:textColor="@color/colorPrimaryDark"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

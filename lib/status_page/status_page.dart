@@ -1,5 +1,6 @@
 import 'package:dem_al/bottom_sheet_fix.dart';
 import 'package:dem_al/circular_material.dart';
+import 'package:dem_al/demal_platform.dart';
 import 'package:dem_al/linear_gradient_tween.dart';
 import 'package:dem_al/percentage_display.dart';
 import 'package:dem_al/settings_page/settings_modal.dart';

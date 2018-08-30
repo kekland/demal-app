@@ -58,13 +58,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   nextPage() {
     setState(() {
       if (selected == 3) {
-        switchAnimation = LinearGradientTween(
-          begin: getGradient(selected),
-          end: getGradient(0),
-        ).animate(switchController);
-
-        switchController.forward(from: 0.0);
-        selected = 0;
+          Navigator.of(context).pushReplacementNamed('/status');
       } else {
         switchAnimation = LinearGradientTween(
           begin: getGradient(selected),
@@ -86,9 +80,6 @@ class _OnboardingPageState extends State<OnboardingPage>
           });
         } else if (selected == 2) {
           scanSubscription.cancel();
-        }
-        else if(selected == 3) {
-          Navigator.of(context).pushReplacementNamed('/status');
         }
       }
     });
