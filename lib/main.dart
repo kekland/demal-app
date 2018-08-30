@@ -8,11 +8,11 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
-  String defaultRoute = '/onboarding';
+  String defaultRoute = '/';
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool onboardingPassed = prefs.getBool('onboarding_passed');
   if (onboardingPassed != null && onboardingPassed) {
-    defaultRoute = '/';
+    defaultRoute = '/status';
   }
 
   final router = new Router();

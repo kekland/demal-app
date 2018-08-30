@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 
 class Routes {
   static String root = '/';
-  static String onboarding = '/onboarding';
+  static String status = '/status';
 
-  static var rootHandler = new Handler(
+  static var statusHandler = new Handler(
     type: HandlerType.route,
     handlerFunc: (context, args) {
       return StatusPage();
@@ -26,7 +26,7 @@ class Routes {
         handlerFunc: (BuildContext context, Map<String, List<String>> params) {
       print("Route was not found :/");
     });
-    router.define(root, handler: rootHandler);
-    router.define(onboarding, handler: onboardingHandler);
+    router.define(root, handler: onboardingHandler);
+    router.define(status, handler: statusHandler);
   }
 }

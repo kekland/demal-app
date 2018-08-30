@@ -72,6 +72,24 @@ public class MainActivity extends FlutterActivity {
     );
   }
 
+    @Override
+    protected void onResume() {
+      eventSinkAvailable = true;
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+      eventSinkAvailable = false;
+      super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+      eventSinkAvailable = false;
+      super.onStop();
+    }
+
     void launchService(String mac) {
       Intent startIntent = new Intent(MainActivity.this, StatusService.class);
       startIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);

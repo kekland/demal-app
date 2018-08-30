@@ -70,6 +70,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
   initState() {
     DemAlPlatform.launchService();
     subscription = DemAlPlatform.stream.receiveBroadcastStream().listen(onDataReceive);
+
     super.initState();
     controller =
         new AnimationController(vsync: this, duration: Duration(seconds: 3));
@@ -200,6 +201,8 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
   void dispose() {
     controller.dispose();
     startAnimationController.dispose();
+    subscription.cancel();
+    print('sub canceled');
     super.dispose();
   }
 }

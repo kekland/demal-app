@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dem_al/circular_reveal_widget.dart';
 import 'package:dem_al/fluro/application.dart';
 import 'package:dem_al/linear_gradient_tween.dart';
 import 'package:dem_al/onboarding_page/info_page.dart';
@@ -61,17 +62,24 @@ class _OnboardingPageState extends State<OnboardingPage>
   var scanSubscription;
   final ContactPicker contactPicker = new ContactPicker();
   nextPage(BuildContext context) {
-    setState(() {
-      if (selected == 3) {
-        Application.router.navigateTo(
-          context,
-          '/',
-          transition: TransitionType.custom,
-          replace: true,
-          transitionBuilder: (context, anim1, anim2, widget) {},
-          transitionDuration: Duration(seconds: 1),
-        );
-      } else {
+    if (selected == 3) {
+      Application.router.printTree();
+      Application.router.navigateTo(
+        context,
+        '/status',
+        transition: TransitionType.custom,
+        replace: true,
+        transitionBuilder: (context, anim1, anim2, widget) {
+          return PageRevealWidget(
+            revealPercent: anim1.value,
+            child: widget,
+            revealPositionY: 0.8,
+          );
+        },
+        transitionDuration: Duration(milliseconds: 750),
+      );
+    } else {
+      setState(() {
         switchAnimation = LinearGradientTween(
           begin: getGradient(selected),
           end: getGradient(selected + 1),
@@ -103,8 +111,8 @@ class _OnboardingPageState extends State<OnboardingPage>
             scanSubscription.cancel();
           }
         }
-      }
-    });
+      });
+    }
   }
 
   selectContact(BuildContext context) async {
@@ -119,7 +127,9 @@ class _OnboardingPageState extends State<OnboardingPage>
   dispose() {
     controller.dispose();
     switchController.dispose();
-    scanSubscription.cancel();
+    if(!MOCK_BLUETOOTH_DEVICE) {
+      scanSubscription.cancel();
+    }
     super.dispose();
   }
 
