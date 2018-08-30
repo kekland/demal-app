@@ -6,7 +6,8 @@ class WaveBackgroundWidget extends StatefulWidget {
   final double amplitude;
   final double xOffset;
   final Duration animationDuration;
-  WaveBackgroundWidget({this.height, this.amplitude, this.animationDuration, this.xOffset});
+  WaveBackgroundWidget(
+      {this.height, this.amplitude, this.animationDuration, this.xOffset});
 
   @override
   WaveBackgroundWidgetState createState() {
@@ -14,13 +15,14 @@ class WaveBackgroundWidget extends StatefulWidget {
   }
 }
 
-class WaveBackgroundWidgetState extends State<WaveBackgroundWidget> with SingleTickerProviderStateMixin {
+class WaveBackgroundWidgetState extends State<WaveBackgroundWidget>
+    with SingleTickerProviderStateMixin {
   AnimationController controller;
 
   @override
   initState() {
     super.initState();
-    
+
     controller = new AnimationController(
         vsync: this, duration: widget.animationDuration);
 
@@ -30,6 +32,13 @@ class WaveBackgroundWidgetState extends State<WaveBackgroundWidget> with SingleT
 
     controller.repeat();
   }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ClipPath(

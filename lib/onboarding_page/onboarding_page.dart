@@ -53,6 +53,7 @@ class _OnboardingPageState extends State<OnboardingPage>
     switchController.forward();
   }
 
+  static const bool MOCK_BLUETOOTH_DEVICE = true;
   var scanSubscription;
   final ContactPicker contactPicker = new ContactPicker();
   nextPage() {
@@ -72,7 +73,7 @@ class _OnboardingPageState extends State<OnboardingPage>
           FlutterBlue blue = FlutterBlue.instance;
           scanSubscription =
               blue.scan(scanMode: ScanMode.balanced).listen((result) async {
-            if (result.device.name == 'Mi Band 3') {
+            if (result.device.name == 'Mi Band 3' || MOCK_BLUETOOTH_DEVICE) {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               prefs.setString('device_id', result.device.id.id);
               nextPage();
@@ -95,10 +96,10 @@ class _OnboardingPageState extends State<OnboardingPage>
 
   @override
   dispose() {
-    super.dispose();
     controller.dispose();
     switchController.dispose();
     scanSubscription.cancel();
+    super.dispose();
   }
 
   LinearGradient getGradient(int index) {

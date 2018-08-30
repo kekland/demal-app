@@ -2,6 +2,7 @@ package com.example.demal;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -45,9 +46,29 @@ public class StatusThread extends Thread {
 
 
         //noinspection InfiniteLoopStatement
-        while(true) {
-            callback.onData(0.1f, 35, 35);
-            SystemClock.sleep(500);
-        }
+        getData();
+    }
+
+    int iter = 0;
+
+    void getData() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(cancelled) {
+                    return;
+                }
+                callback.onData(0.125f, (iter) % 100, 25);
+                iter++;
+                getData();
+            }
+        }, 500);
+    }
+    public boolean cancelled = false;
+
+    public void cancel() {
+        cancelled = true;
+        bluetooth.disable();
+        bluetooth.onStop();
     }
 }

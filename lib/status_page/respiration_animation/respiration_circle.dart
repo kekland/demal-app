@@ -12,7 +12,7 @@ class RespirationCircleWidget extends StatefulWidget {
 }
 
 class _RespirationCircleWidgetState extends State<RespirationCircleWidget>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<double> animation;
 
@@ -43,8 +43,8 @@ class _RespirationCircleWidgetState extends State<RespirationCircleWidget>
 
   @override
   void dispose() {
-    super.dispose();
     controller.dispose();
+    super.dispose();
   }
 
   @override

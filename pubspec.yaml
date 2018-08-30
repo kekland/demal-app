@@ -19,7 +19,14 @@ dependencies:
   flutter_svg:
   shared_preferences:
   flutter_blue:
-  contact_picker:
+  contact_picker:  
+  flutter_launcher_icons: "^0.6.1"
+
+
+flutter_icons:
+  android: true 
+  ios: false
+  image_path: "assets/app_logo.png"
 
 dev_dependencies:
   flutter_test:

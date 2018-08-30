@@ -21,6 +21,10 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by kkerz on 30-May-18.
  */
@@ -34,14 +38,25 @@ public class StatusService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("DeviceService", "Received intent");
         if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
-            Log.i("VoiceService", "Received Start Foreground Intent");
+            Log.i("DeviceService", "Received Start Foreground Intent");
             showNotification();
             String mac = intent.getExtras().getString("mac");
+            final Context context = this;
             thread = new StatusThread(this, mac, new StatusThread.AirDeviceCallback() {
                 @Override
                 public void onData(float airQuality, int humidity, int temperature) {
                     NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    if(MainActivity.eventSinkAvailable) {
+                        Map<String, Object> values = new HashMap<String, Object>();
+
+                        values.put("airQuality", airQuality);
+                        values.put("humidity", humidity);
+                        values.put("temperature", temperature);
+
+                        MainActivity.dataEventSink.success(values);
+                    }
                     mNotificationManager.notify(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, getNotification(airQuality, humidity, temperature));
                 }
             });
@@ -49,18 +64,15 @@ public class StatusService extends Service {
             //Do stuff
         }
         else if (intent.getAction().equals(Constants.ACTION.STOPFOREGROUND_ACTION)) {
-            Log.i("VoiceService", "Received Stop Foreground Intent");
-            stopForeground(true);
-            thread.interrupt();
+            Log.i("DeviceService", "Received Stop Foreground Intent");
+            thread.cancel();
             stopSelf();
+            stopForeground(true);
         }
         return START_STICKY;
     }
 
     void showNotification() {
-
-
-
         createNotificationChannel();
 
         startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE,
@@ -83,16 +95,34 @@ public class StatusService extends Service {
         else if(airQuality > 0.5f) {
             airQualityString = "Bad";
         }
-        float airQualityScore = 1f - airQuality;
-        float humidityScore = 1f - (Math.abs(50 - humidity) / 50f);
-        int totalAirScore = Math.round(airQualityScore * 50 + humidityScore  * 50);
+
+        double humidityQuality = 0.0;
+        double gasQuality = 0.0;
+        if (airQuality < 0.2f) {
+            gasQuality = 1.0;
+        } else if (airQuality < 0.5f) {
+            gasQuality = 1.0 - Math.abs(airQuality - 0.5) / 0.3;
+        } else {
+            gasQuality = 0.0;
+        }
+
+        if (humidity > 20 && humidity <= 40) {
+            humidityQuality = 1.0;
+        } else if (humidity <= 20) {
+            humidityQuality = humidity / 20.0;
+        } else {
+            humidityQuality = 1.0 - ((humidity - 40.0) / 60.0);
+        }
+
+        int totalAirScore = (int)Math.round((humidityQuality * 0.5 + gasQuality * 0.5) * 100.0);
+
         views.setTextViewText(R.id.airQualityDataText, airQualityString);
         views.setTextViewText(R.id.humidityDataText, Integer.toString(humidity) + "%");
         views.setTextViewText(R.id.dustDataText, "Not available");
         views.setTextViewText(R.id.airQualityDataPercent, totalAirScore + "");
 
         Notification notification = new NotificationCompat.Builder(this, "dem_al_main")
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_cloud_white_24dp)
                 .setContent(views)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true).build();

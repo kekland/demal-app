@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dem_al/bottom_sheet_fix.dart';
 import 'package:dem_al/circular_material.dart';
 import 'package:dem_al/demal_platform.dart';
@@ -33,20 +35,19 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
   double humidityLevel = 50.0, gasLevel = 500.0, dustLevel = -1.0;
 
   double calculatePoints() {
-    return 100.0;
-    double humidityQuality = (humidityLevel - 50.0).abs() / 50.0;
+    double humidityQuality;
     double gasQuality = 0.0;
-    if (gasLevel < 200.0) {
+    if (gasLevel < 0.2) {
       gasQuality = 1.0;
-    } else if (gasLevel < 500.0) {
-      gasQuality = 1.0 - (gasLevel - 200.0).abs() / 300.0;
+    } else if (gasLevel < 0.5) {
+      gasQuality = 1.0 - (gasLevel - 0.5).abs() / 0.3;
     } else {
       gasQuality = 0.0;
     }
 
-    if (humidityLevel > 20.0 && humidityLevel < 40.0) {
+    if (humidityLevel > 20.0 && humidityLevel <= 40.0) {
       humidityQuality = 1.0;
-    } else if (humidityLevel < 20.0) {
+    } else if (humidityLevel <= 20.0) {
       humidityQuality = humidityLevel / 20.0;
     } else if (humidityLevel > 40.0) {
       humidityQuality = 1.0 - ((humidityLevel - 40.0) / 60.0);
@@ -56,16 +57,19 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
   }
 
   String getGasLevel() {
-    if (gasLevel < 200.0) {
+    if (gasLevel < 0.25) {
       return 'Good';
-    } else if (gasLevel < 500.0) {
-      return 'Fine';
+    } else if (gasLevel < 0.5) {
+      return 'Mediocre';
     } else {
       return 'Bad';
     }
   }
 
+  StreamSubscription subscription;
   initState() {
+    DemAlPlatform.launchService();
+    subscription = DemAlPlatform.stream.receiveBroadcastStream().listen(onDataReceive);
     super.initState();
     controller =
         new AnimationController(vsync: this, duration: Duration(seconds: 3));
@@ -96,10 +100,21 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
     startAnimationController.forward();
   }
 
+  onDataReceive(data) {
+    setState(() {
+      gasLevel = data['airQuality'];
+      humidityLevel = data['humidity'].toDouble();
+    });
+  }
+
   openSettings(BuildContext context) {
-    showModalBottomSheetFixed(context: context, builder: (context) {
-      return SettingsModal();
-    }, dismissOnTap: false, resizeToAvoidBottomPadding: true);
+    showModalBottomSheetFixed(
+        context: context,
+        builder: (context) {
+          return SettingsModal();
+        },
+        dismissOnTap: false,
+        resizeToAvoidBottomPadding: true);
   }
 
   @override
@@ -120,7 +135,9 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
                 child: IconButton(
                   icon: Icon(Icons.settings),
                   color: Colors.white,
-                  onPressed: () {openSettings(context);},
+                  onPressed: () {
+                    openSettings(context);
+                  },
                 ),
               ),
               Align(
@@ -167,12 +184,22 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
               ),
               Align(
                 alignment: AlignmentDirectional(0.0, -0.18),
-                child: RespirationCircleWidget(opacity: 0.07, minimum: 0.25,),
+                child: RespirationCircleWidget(
+                  opacity: 0.07,
+                  minimum: 0.25,
+                ),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    startAnimationController.dispose();
+    super.dispose();
   }
 }
