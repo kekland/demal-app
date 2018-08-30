@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dem_al/linear_gradient_tween.dart';
 import 'package:dem_al/onboarding_page/info_page.dart';
 import 'package:dem_al/onboarding_page/ticker.dart';
@@ -71,16 +73,27 @@ class _OnboardingPageState extends State<OnboardingPage>
 
         if (selected == 1) {
           FlutterBlue blue = FlutterBlue.instance;
+          if(!MOCK_BLUETOOTH_DEVICE) {
           scanSubscription =
               blue.scan(scanMode: ScanMode.balanced).listen((result) async {
-            if (result.device.name == 'Mi Band 3' || MOCK_BLUETOOTH_DEVICE) {
+            if (result.device.name == 'DemAl') {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               prefs.setString('device_id', result.device.id.id);
               nextPage();
             }
           });
+          }
+          else {
+            new Future.delayed(Duration(seconds: 2), () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString('device_id', '10:11:12:13:14:15');
+              nextPage();
+            });
+          }
         } else if (selected == 2) {
-          scanSubscription.cancel();
+          if(!MOCK_BLUETOOTH_DEVICE) {
+            scanSubscription.cancel();
+          }
         }
       }
     });
