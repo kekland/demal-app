@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:dem_al/fluro/application.dart';
 import 'package:dem_al/linear_gradient_tween.dart';
 import 'package:dem_al/onboarding_page/info_page.dart';
 import 'package:dem_al/onboarding_page/ticker.dart';
 import 'package:dem_al/status_page/respiration_animation/respiration_circle.dart';
+import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,10 +60,17 @@ class _OnboardingPageState extends State<OnboardingPage>
   static const bool MOCK_BLUETOOTH_DEVICE = true;
   var scanSubscription;
   final ContactPicker contactPicker = new ContactPicker();
-  nextPage() {
+  nextPage(BuildContext context) {
     setState(() {
       if (selected == 3) {
-        Navigator.of(context).pushReplacementNamed('/status');
+        Application.router.navigateTo(
+          context,
+          '/',
+          transition: TransitionType.custom,
+          replace: true,
+          transitionBuilder: (context, anim1, anim2, widget) {},
+          transitionDuration: Duration(seconds: 1),
+        );
       } else {
         switchAnimation = LinearGradientTween(
           begin: getGradient(selected),
@@ -79,14 +88,14 @@ class _OnboardingPageState extends State<OnboardingPage>
               if (result.device.name == 'DemAl') {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 prefs.setString('device_id', result.device.id.id);
-                nextPage();
+                nextPage(context);
               }
             });
           } else {
             new Future.delayed(Duration(seconds: 2), () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               prefs.setString('device_id', '10:11:12:13:14:15');
-              nextPage();
+              nextPage(context);
             });
           }
         } else if (selected == 2) {
@@ -98,12 +107,12 @@ class _OnboardingPageState extends State<OnboardingPage>
     });
   }
 
-  selectContact() async {
+  selectContact(BuildContext context) async {
     Contact contact = await contactPicker.selectContact();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('phone_number', contact.phoneNumber.number);
     prefs.setString('phone_name', contact.fullName);
-    nextPage();
+    nextPage(context);
   }
 
   @override
@@ -167,7 +176,7 @@ class _OnboardingPageState extends State<OnboardingPage>
           icon: Icon(Icons.chevron_right),
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
-          onPressed: nextPage,
+          onPressed: () => nextPage(context),
         ),
       ),
       InfoPageData(
@@ -218,14 +227,14 @@ class _OnboardingPageState extends State<OnboardingPage>
               icon: Icon(Icons.chevron_right),
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
-              onPressed: selectContact,
+              onPressed: () => selectContact(context),
             ),
             FloatingActionButton.extended(
               label: Text('Cancel'),
               icon: Icon(Icons.close),
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
-              onPressed: nextPage,
+              onPressed: () => nextPage(context),
             ),
           ],
         ),
@@ -243,7 +252,7 @@ class _OnboardingPageState extends State<OnboardingPage>
           icon: Icon(Icons.chevron_right),
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
-          onPressed: nextPage,
+          onPressed: () => nextPage(context),
         ),
       ),
     ];
