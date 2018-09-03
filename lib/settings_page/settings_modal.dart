@@ -1,6 +1,7 @@
 import 'package:dem_al/demal_platform.dart';
 import 'package:dem_al/settings_page/setting_card.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsModal extends StatefulWidget {
   @override
@@ -8,6 +9,22 @@ class SettingsModal extends StatefulWidget {
 }
 
 class _SettingsModalState extends State<SettingsModal> {
+  @override
+  initState() {
+    super.initState();
+    getPhoneNumber();
+  }
+  String phoneName = '', deviceName = '';
+  getPhoneNumber() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String _phoneName = prefs.getString('phone_name');
+    String _deviceName = prefs.getString('device_name');
+
+    setState(() {
+          phoneName = _phoneName;
+          deviceName = _deviceName;
+        });
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -29,7 +46,7 @@ class _SettingsModalState extends State<SettingsModal> {
           SettingCard(
             color: Colors.indigo,
             icon: Icon(Icons.bluetooth, color: Colors.white70),
-            text: Text('HC-05',
+            text: Text(deviceName,
                 style: TextStyle(fontSize: 16.0, color: Colors.white)),
             action: FlatButton(
                 child: Text('Change'),
@@ -40,7 +57,7 @@ class _SettingsModalState extends State<SettingsModal> {
           SettingCard(
             color: Colors.pink,
             icon: Icon(Icons.phone, color: Colors.white70),
-            text: Text('+77006532708',
+            text: Text(phoneName,
                 style: TextStyle(fontSize: 16.0, color: Colors.white)),
             action: FlatButton(
                 child: Text('Change'),

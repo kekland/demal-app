@@ -1,4 +1,3 @@
-import 'package:dem_al/status_page/respiration_animation/respiration_circle.dart';
 import 'package:flutter/material.dart';
 
 class InfoPageData {

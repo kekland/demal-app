@@ -25,6 +25,10 @@ import android.widget.RemoteViews;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.support.v4.app.NotificationCompat.DEFAULT_SOUND;
+import static android.support.v4.app.NotificationCompat.DEFAULT_VIBRATE;
+import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
+
 /**
  * Created by kkerz on 30-May-18.
  */
@@ -127,22 +131,31 @@ public class StatusService extends Service {
                 .setContentIntent(pendingIntent)
                 .setOngoing(true).build();
 
+        removeSoundAndVibration(notification);
+
         return notification;
     }
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Air quality data";
 
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            int importance = NotificationManager.IMPORTANCE_LOW;
             NotificationChannel channel = new NotificationChannel("dem_al_main", name, importance);
+            channel.enableVibration(false);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }
+    private void removeSoundAndVibration(Notification notification) {
+        notification.sound = null;
+        notification.vibrate = null;
+        notification.defaults &= ~DEFAULT_SOUND;
+        notification.defaults &= ~DEFAULT_VIBRATE;
+    }
 
-    @Override
+        @Override
     public void onDestroy() {
         super.onDestroy();
         Log.i("VoiceService", "In onDestroy");

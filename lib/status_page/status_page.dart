@@ -1,10 +1,7 @@
 import 'dart:async';
 
 import 'package:dem_al/bottom_sheet_fix.dart';
-import 'package:dem_al/circular_material.dart';
 import 'package:dem_al/demal_platform.dart';
-import 'package:dem_al/linear_gradient_tween.dart';
-import 'package:dem_al/percentage_display.dart';
 import 'package:dem_al/settings_page/settings_modal.dart';
 import 'package:dem_al/status_page/air_quality_widget.dart';
 import 'package:dem_al/status_page/app_title.dart';
@@ -12,13 +9,8 @@ import 'package:dem_al/status_page/colored_background.dart';
 import 'package:dem_al/status_page/data_widget.dart';
 import 'package:dem_al/status_page/respiration_animation/respiration_circle.dart';
 import 'package:dem_al/status_page/slider_percent.dart';
-import 'package:dem_al/status_page/wave_background/wave_background.dart';
-import 'package:dem_al/tab_widget.dart';
-import 'package:dem_al/title_text_widget.dart';
 import 'package:flutter/material.dart';
-import 'dart:math';
 
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StatusPage extends StatefulWidget {
@@ -120,12 +112,13 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
 
   openSettings(BuildContext context) {
     showModalBottomSheetFixed(
-        context: context,
-        builder: (context) {
-          return SettingsModal();
-        },
-        dismissOnTap: false,
-        resizeToAvoidBottomPadding: true);
+      context: context,
+      builder: (context) {
+        return SettingsModal();
+      },
+      dismissOnTap: false,
+      resizeToAvoidBottomPadding: true,
+    );
   }
 
   @override
@@ -135,72 +128,79 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
         animation: animation,
         qualityPoints: calculatePoints(),
         child: SafeArea(
-          child: Stack(
-            children: [
-              Align(
-                alignment: AlignmentDirectional.topCenter,
-                child: AppTitleWidget(),
-              ),
-              Align(
-                alignment: AlignmentDirectional.topEnd,
-                child: IconButton(
-                  icon: Icon(Icons.settings),
-                  color: Colors.white,
-                  onPressed: () {
-                    openSettings(context);
-                  },
-                ),
-              ),
-              Align(
-                alignment: AlignmentDirectional.topStart,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                  child: SliderPercentWidget(
-                    percentage: calculatePoints() / 100.0,
+          child: Transform(
+            transform: new Matrix4.translationValues(
+                0.0, -30.0 * (1.0 - startAnimation.value), 0.0),
+            child: Opacity(
+              opacity: startAnimation.value,
+              child: Stack(
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.topCenter,
+                    child: AppTitleWidget(),
                   ),
-                ),
-              ),
-              Align(
-                alignment: AlignmentDirectional(0.0, -0.15),
-                child: AirQualityWidget(
-                  qualityLevel: calculatePoints(),
-                ),
-              ),
-              Align(
-                alignment: AlignmentDirectional.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      bottom: 24.0, left: 8.0, right: 8.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      DataWidget(
-                        value: '${humidityLevel.round()}%',
-                        description: 'Humidity',
-                        iconAsset: 'assets/icons/water-percent.svg',
-                      ),
-                      DataWidget(
-                        value: getGasLevel(),
-                        description: 'Gases',
-                        iconAsset: 'assets/icons/periodic-table-co2.svg',
-                      ),
-                      DataWidget(
-                        value: 'No data',
-                        description: 'Dust',
-                        iconAsset: 'assets/icons/weather-windy.svg',
-                      ),
-                    ],
+                  Align(
+                    alignment: AlignmentDirectional.topEnd,
+                    child: IconButton(
+                      icon: Icon(Icons.settings),
+                      color: Colors.white,
+                      onPressed: () {
+                        openSettings(context);
+                      },
+                    ),
                   ),
-                ),
+                  Align(
+                    alignment: AlignmentDirectional.topStart,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                      child: SliderPercentWidget(
+                        percentage: calculatePoints() / 100.0,
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional(0.0, -0.15),
+                    child: AirQualityWidget(
+                      qualityLevel: calculatePoints(),
+                    ),
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: 24.0, left: 8.0, right: 8.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          DataWidget(
+                            value: '${humidityLevel.round()}%',
+                            description: 'Humidity',
+                            iconAsset: 'assets/icons/water-percent.svg',
+                          ),
+                          DataWidget(
+                            value: getGasLevel(),
+                            description: 'Gases',
+                            iconAsset: 'assets/icons/periodic-table-co2.svg',
+                          ),
+                          DataWidget(
+                            value: 'No data',
+                            description: 'Dust',
+                            iconAsset: 'assets/icons/weather-windy.svg',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional(0.0, -0.18),
+                    child: RespirationCircleWidget(
+                      opacity: 0.07,
+                      minimum: 0.25,
+                    ),
+                  ),
+                ],
               ),
-              Align(
-                alignment: AlignmentDirectional(0.0, -0.18),
-                child: RespirationCircleWidget(
-                  opacity: 0.07,
-                  minimum: 0.25,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

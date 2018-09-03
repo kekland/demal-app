@@ -21,11 +21,6 @@ class GradientBackgroundWidget extends StatelessWidget {
       ),
       sqrt(qualityPoints / 100.0),
     );
-    /*return LinearGradient(
-      colors: getBackgroundColors(qualityPoints),
-      begin: AlignmentDirectional.topStart,
-      end: AlignmentDirectional.bottomEnd,
-    );*/
   }
 
   List<Color> getBackgroundColors(double points) {

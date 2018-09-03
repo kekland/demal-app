@@ -95,6 +95,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                 blue.scan(scanMode: ScanMode.balanced).listen((result) async {
               if (result.device.name == 'DemAl') {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.setString('device_name', result.device.name);
                 prefs.setString('device_id', result.device.id.id);
                 nextPage(context);
               }
@@ -102,6 +103,7 @@ class _OnboardingPageState extends State<OnboardingPage>
           } else {
             new Future.delayed(Duration(seconds: 2), () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString('device_name', 'DemAl');
               prefs.setString('device_id', '10:11:12:13:14:15');
               nextPage(context);
             });
@@ -118,8 +120,20 @@ class _OnboardingPageState extends State<OnboardingPage>
   selectContact(BuildContext context) async {
     Contact contact = await contactPicker.selectContact();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('phone_number', contact.phoneNumber.number);
-    prefs.setString('phone_name', contact.fullName);
+    if (contact == null) {
+      prefs.setString('phone_number', 'null');
+      prefs.setString('phone_name', 'Not selected');
+    } else {
+      prefs.setString('phone_number', contact.phoneNumber.number);
+      prefs.setString('phone_name', contact.fullName);
+    }
+    nextPage(context);
+  }
+
+  skipContacts(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('phone_number', 'null');
+    prefs.setString('phone_name', 'Not selected');
     nextPage(context);
   }
 
@@ -127,7 +141,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   dispose() {
     controller.dispose();
     switchController.dispose();
-    if(!MOCK_BLUETOOTH_DEVICE) {
+    if (!MOCK_BLUETOOTH_DEVICE) {
       scanSubscription.cancel();
     }
     super.dispose();
@@ -161,7 +175,7 @@ class _OnboardingPageState extends State<OnboardingPage>
         begin: AlignmentDirectional.topStart,
         end: AlignmentDirectional.bottomEnd,
       );
-    } else if (index == 3) {
+    } else {
       return LinearGradient(
         colors: [
           Color.lerp(Colors.blue, Colors.cyan, animation.value),
@@ -244,7 +258,7 @@ class _OnboardingPageState extends State<OnboardingPage>
               icon: Icon(Icons.close),
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
-              onPressed: () => nextPage(context),
+              onPressed: () => skipContacts(context),
             ),
           ],
         ),

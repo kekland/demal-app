@@ -1,7 +1,5 @@
 import 'package:dem_al/fluro/application.dart';
 import 'package:dem_al/fluro/handlers.dart';
-import 'package:dem_al/onboarding_page/onboarding_page.dart';
-import 'package:dem_al/status_page/status_page.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +10,7 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool onboardingPassed = prefs.getBool('onboarding_passed');
   if (onboardingPassed != null && onboardingPassed) {
-    defaultRoute = '/status';
+    defaultRoute = '/';
   }
 
   final router = new Router();
