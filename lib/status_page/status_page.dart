@@ -105,6 +105,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
 
   onDataReceive(data) {
     setState(() {
+      print(data['humidity']);
       gasLevel = data['airQuality'];
       humidityLevel = data['humidity'].toDouble();
     });

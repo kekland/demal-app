@@ -44,9 +44,63 @@ public class StatusThread extends Thread {
             @Override public void onConnectError(BluetoothDevice device, String message) {}
         });*/
 
+        bluetooth.connectToAddress(deviceAddress);
+        bluetooth.setDeviceCallback(new DeviceCallback() {
+            @Override
+            public void onDeviceConnected(BluetoothDevice device) {
+                if(cancelled) {
+                    return;
+                }
+                Log.i("DEMAL_DEVICE", "Connected");
+            }
+
+            @Override
+            public void onDeviceDisconnected(BluetoothDevice device, String message) {
+                if(cancelled) {
+                    return;
+                }
+                tryConnect();
+            }
+
+            @Override
+            public void onMessage(String message) {
+                if(cancelled) {
+                    return;
+                }
+                String[] indices = message.split(",");
+                Log.i("1111111HUMIDITY", indices[2]);
+                int airQuality = Integer.parseInt(indices[0]);
+                int temperature = Integer.parseInt(indices[1]);
+                int humidity = Integer.parseInt(indices[2]);
+
+                float airQualityNormalized = airQuality / 1024f;
+                callback.onData(airQualityNormalized, humidity, temperature);
+            }
+
+            @Override
+            public void onError(String message) {
+                if(cancelled) {
+                    return;
+                }
+                tryConnect();
+            }
+
+            @Override
+            public void onConnectError(BluetoothDevice device, String message) {
+                if(cancelled) {
+                    return;
+                }
+                tryConnect();
+            }
+        });
+
 
         //noinspection InfiniteLoopStatement
-        getData();
+        //getData();
+    }
+
+    void tryConnect() {
+        bluetooth.connectToAddress(deviceAddress);
     }
 
     int iter = 0;

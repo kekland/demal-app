@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dem_al/circular_reveal_widget.dart';
+import 'package:dem_al/demal_platform.dart';
 import 'package:dem_al/fluro/application.dart';
 import 'package:dem_al/linear_gradient_tween.dart';
 import 'package:dem_al/onboarding_page/info_page.dart';
@@ -27,6 +28,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   Animation<double> switchTransformAnimation;
   int selected = 0;
   initState() {
+    DemAlPlatform.stopService();
     super.initState();
     controller =
         new AnimationController(vsync: this, duration: Duration(seconds: 3));
@@ -58,7 +60,7 @@ class _OnboardingPageState extends State<OnboardingPage>
     switchController.forward();
   }
 
-  static const bool MOCK_BLUETOOTH_DEVICE = true;
+  static const bool MOCK_BLUETOOTH_DEVICE = false;
   var scanSubscription;
   final ContactPicker contactPicker = new ContactPicker();
   nextPage(BuildContext context) {
@@ -89,17 +91,8 @@ class _OnboardingPageState extends State<OnboardingPage>
         selected++;
 
         if (selected == 1) {
-          FlutterBlue blue = FlutterBlue.instance;
           if (!MOCK_BLUETOOTH_DEVICE) {
-            scanSubscription =
-                blue.scan(scanMode: ScanMode.balanced).listen((result) async {
-              if (result.device.name == 'DemAl') {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setString('device_name', result.device.name);
-                prefs.setString('device_id', result.device.id.id);
-                nextPage(context);
-              }
-            });
+            scan();
           } else {
             new Future.delayed(Duration(seconds: 2), () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -110,10 +103,19 @@ class _OnboardingPageState extends State<OnboardingPage>
           }
         } else if (selected == 2) {
           if (!MOCK_BLUETOOTH_DEVICE) {
-            scanSubscription.cancel();
+            DemAlPlatform.stopScan();
           }
         }
       });
+    }
+  }
+
+  scan() async {
+    bool success = await DemAlPlatform.launchScan();
+    if (success) {
+      nextPage(context);
+    } else {
+      scan();
     }
   }
 
@@ -142,7 +144,7 @@ class _OnboardingPageState extends State<OnboardingPage>
     controller.dispose();
     switchController.dispose();
     if (!MOCK_BLUETOOTH_DEVICE) {
-      scanSubscription.cancel();
+      DemAlPlatform.stopScan();
     }
     super.dispose();
   }

@@ -1,6 +1,7 @@
 package com.example.demal;
 
 import android.app.ActivityManager;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -12,6 +13,8 @@ import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
+import me.aflak.bluetooth.Bluetooth;
+import me.aflak.bluetooth.DiscoveryCallback;
 
 public class MainActivity extends FlutterActivity {
   private static final String CHANNEL = "com.kekland.demal/device";
@@ -20,10 +23,14 @@ public class MainActivity extends FlutterActivity {
 
   public static EventChannel.EventSink dataEventSink;
   public static boolean eventSinkAvailable;
+  public static boolean isScanning = false;
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     GeneratedPluginRegistrant.registerWith(this);
+
+    final Bluetooth bluetooth = new Bluetooth(this);
+      bluetooth.onStart();
 
     channel = new MethodChannel(getFlutterView(), CHANNEL);
 
@@ -42,8 +49,9 @@ public class MainActivity extends FlutterActivity {
     channel.setMethodCallHandler(
             new MethodChannel.MethodCallHandler() {
                 @Override
-                public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
+                public void onMethodCall(MethodCall methodCall, final MethodChannel.Result result) {
                     if(methodCall.method.equals("launchService")) {
+                        bluetooth.onStop();
                         String mac = methodCall.argument("deviceId");
                         if(!isServiceRunning(StatusService.class)) {
                             launchService(mac);
@@ -68,12 +76,65 @@ public class MainActivity extends FlutterActivity {
                         eventSinkAvailable = true;
                         result.success(null);
                     }
+                    else if(methodCall.method.equals("listenForDevice")) {
+                        bluetooth.enable();
+                        isScanning = true;
+                        bluetooth.setDiscoveryCallback(new DiscoveryCallback() {
+                            @Override
+                            public void onDiscoveryStarted() {
+
+                            }
+
+                            @Override
+                            public void onDiscoveryFinished() {
+                            }
+
+                            @Override
+                            public void onDeviceFound(BluetoothDevice device) {
+                                if(device.getName() != null && device.getName().equals("HC-05")) {
+                                    result.success(device.getAddress());
+                                    bluetooth.stopScanning();
+                                    bluetooth.removeDiscoveryCallback();
+                                    isScanning = false;
+                                }
+                            }
+
+                            @Override
+                            public void onDevicePaired(BluetoothDevice device) {
+
+                            }
+
+                            @Override
+                            public void onDeviceUnpaired(BluetoothDevice device) {
+
+                            }
+
+                            @Override
+                            public void onError(String message) {
+
+                            }
+                        });
+
+                        bluetooth.startScanning();
+                    }
+                    else if(methodCall.method.equals("stopListeningForDevice")) {
+                        if(isScanning) {
+                            bluetooth.stopScanning();
+                            bluetooth.removeDiscoveryCallback();
+                            bluetooth.disable();
+                            isScanning = false;
+                        }
+                    }
                     else {
                         result.notImplemented();
                     }
                 }
             }
     );
+  }
+
+  void listenForDevice() {
+
   }
 
     @Override

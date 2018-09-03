@@ -59,6 +59,8 @@ public class StatusService extends Service {
                         values.put("humidity", humidity);
                         values.put("temperature", temperature);
 
+                        Log.i("HUMIDITY", humidity + "");
+
                         MainActivity.dataEventSink.success(values);
                     }
                     mNotificationManager.notify(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, getNotification(airQuality, humidity, temperature));
