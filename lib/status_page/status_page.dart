@@ -80,7 +80,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
         parent: controller, curve: Curves.linear, reverseCurve: Curves.linear);
 
     startAnimationController =
-        new AnimationController(vsync: this, duration: Duration(seconds: 1));
+        new AnimationController(vsync: this, duration: Duration(seconds: 2));
     startAnimation = new CurvedAnimation(
         parent: startAnimationController, curve: Curves.easeInOut);
 
@@ -130,7 +130,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
         child: SafeArea(
           child: Transform(
             transform: new Matrix4.translationValues(
-                0.0, -30.0 * (1.0 - startAnimation.value), 0.0),
+                0.0, 60.0 * (1.0 - startAnimation.value), 0.0),
             child: Opacity(
               opacity: startAnimation.value,
               child: Stack(

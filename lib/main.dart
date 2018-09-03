@@ -29,18 +29,21 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     return new MaterialApp(
       title: 'DemAl',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
       onGenerateRoute: Application.router.generator,
-      initialRoute: defaultRoute,
+      initialRoute: '/status',
     );
   }
 }
