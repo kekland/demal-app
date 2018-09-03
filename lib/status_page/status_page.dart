@@ -212,7 +212,6 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
     controller.dispose();
     startAnimationController.dispose();
     subscription.cancel();
-    print('sub canceled');
     super.dispose();
   }
 }
