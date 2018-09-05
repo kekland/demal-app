@@ -60,7 +60,7 @@ class _OnboardingPageState extends State<OnboardingPage>
     switchController.forward();
   }
 
-  static const bool MOCK_BLUETOOTH_DEVICE = false;
+  static const bool MOCK_BLUETOOTH_DEVICE = true;
   var scanSubscription;
   final ContactPicker contactPicker = new ContactPicker();
   nextPage(BuildContext context) {

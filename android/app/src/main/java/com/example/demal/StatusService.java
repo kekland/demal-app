@@ -50,20 +50,29 @@ public class StatusService extends Service {
             final Context context = this;
             thread = new StatusThread(this, mac, new StatusThread.AirDeviceCallback() {
                 @Override
-                public void onData(float airQuality, int humidity, int temperature) {
-                    NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                public void onData(double gasNormalized, double gasQuality, double humidityNormalized, double humidityQuality, double overallQuality, int temperature) {NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    String overallQualityString = AirQualityMath.getOverallAirQualityString(overallQuality);
+                    String gasesQualityString = AirQualityMath.getGasesQualityString(gasQuality);
+
                     if(MainActivity.eventSinkAvailable) {
                         Map<String, Object> values = new HashMap<String, Object>();
 
-                        values.put("airQuality", airQuality);
-                        values.put("humidity", humidity);
+                        values.put("gasNormalized", gasNormalized);
+                        values.put("gasQuality", gasQuality);
+                        values.put("humidityNormalized", humidityNormalized);
+                        values.put("humidityQuality", humidityQuality);
+                        values.put("overallQuality", overallQuality);
                         values.put("temperature", temperature);
-
-                        Log.i("HUMIDITY", humidity + "");
+                        values.put("overallQualityString", overallQualityString);
+                        values.put("gasQualityString", gasesQualityString);
 
                         MainActivity.dataEventSink.success(values);
                     }
-                    mNotificationManager.notify(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, getNotification(airQuality, humidity, temperature));
+                    mNotificationManager.notify(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, getNotification(
+                            gasesQualityString,
+                            (int)Math.round(humidityNormalized * 100.0),
+                            "No data",
+                            (int)Math.round(overallQuality * 100.0)));
                 }
             });
             thread.run();
@@ -82,10 +91,10 @@ public class StatusService extends Service {
         createNotificationChannel();
 
         startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE,
-                getNotification(0, 0, 0));
+                getNotification("Loading", 0, "Not available", 0));
     }
 
-    Notification getNotification(float airQuality, int humidity, int temperature) {
+    Notification getNotification(String airQuality, int humidity, String dustParticles, int overall) {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.setAction(Constants.ACTION.MAIN_ACTION);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -94,38 +103,11 @@ public class StatusService extends Service {
                 notificationIntent, 0);
 
         RemoteViews views = new RemoteViews(this.getPackageName(),R.layout.notification_main);
-        String airQualityString = "Good";
-        if(airQuality > 0.25f) {
-            airQualityString = "Mediocre";
-        }
-        else if(airQuality > 0.5f) {
-            airQualityString = "Bad";
-        }
 
-        double humidityQuality = 0.0;
-        double gasQuality = 0.0;
-        if (airQuality < 0.2f) {
-            gasQuality = 1.0;
-        } else if (airQuality < 0.5f) {
-            gasQuality = 1.0 - Math.abs(airQuality - 0.5) / 0.3;
-        } else {
-            gasQuality = 0.0;
-        }
-
-        if (humidity > 20 && humidity <= 40) {
-            humidityQuality = 1.0;
-        } else if (humidity <= 20) {
-            humidityQuality = humidity / 20.0;
-        } else {
-            humidityQuality = 1.0 - ((humidity - 40.0) / 60.0);
-        }
-
-        int totalAirScore = (int)Math.round((humidityQuality * 0.5 + gasQuality * 0.5) * 100.0);
-
-        views.setTextViewText(R.id.airQualityDataText, airQualityString);
+        views.setTextViewText(R.id.airQualityDataText, airQuality);
         views.setTextViewText(R.id.humidityDataText, Integer.toString(humidity) + "%");
-        views.setTextViewText(R.id.dustDataText, "Not available");
-        views.setTextViewText(R.id.airQualityDataPercent, totalAirScore + "");
+        views.setTextViewText(R.id.dustDataText, dustParticles);
+        views.setTextViewText(R.id.airQualityDataPercent, overall + "");
 
         Notification notification = new NotificationCompat.Builder(this, "dem_al_main")
                 .setSmallIcon(R.drawable.ic_cloud_white_24dp)

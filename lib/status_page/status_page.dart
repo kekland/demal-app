@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:dem_al/bottom_sheet_fix.dart';
 import 'package:dem_al/demal_platform.dart';
 import 'package:dem_al/settings_page/settings_modal.dart';
+import 'package:dem_al/status_page/air_data.dart';
 import 'package:dem_al/status_page/air_quality_widget.dart';
 import 'package:dem_al/status_page/app_title.dart';
+import 'package:dem_al/status_page/bottom_panel.dart';
+import 'package:dem_al/status_page/bottom_panel_gestures.dart';
 import 'package:dem_al/status_page/colored_background.dart';
 import 'package:dem_al/status_page/data_widget.dart';
 import 'package:dem_al/status_page/respiration_animation/respiration_circle.dart';
@@ -24,40 +27,11 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
 
   AnimationController startAnimationController;
   Animation<double> startAnimation;
+  AnimatedPageDragger dragger;
+  bool isOpen = false;
+  double bottomPanelSlideValue = 0.0;
 
-  double humidityLevel = 50.0, gasLevel = 500.0, dustLevel = -1.0;
-
-  double calculatePoints() {
-    double humidityQuality;
-    double gasQuality = 0.0;
-    if (gasLevel < 0.2) {
-      gasQuality = 1.0;
-    } else if (gasLevel < 0.5) {
-      gasQuality = 1.0 - (gasLevel - 0.5).abs() / 0.3;
-    } else {
-      gasQuality = 0.0;
-    }
-
-    if (humidityLevel > 20.0 && humidityLevel <= 40.0) {
-      humidityQuality = 1.0;
-    } else if (humidityLevel <= 20.0) {
-      humidityQuality = humidityLevel / 20.0;
-    } else if (humidityLevel > 40.0) {
-      humidityQuality = 1.0 - ((humidityLevel - 40.0) / 60.0);
-    }
-
-    return (humidityQuality * 0.2 + gasQuality * 0.7) * 100;
-  }
-
-  String getGasLevel() {
-    if (gasLevel < 0.25) {
-      return 'Good';
-    } else if (gasLevel < 0.5) {
-      return 'Mediocre';
-    } else {
-      return 'Bad';
-    }
-  }
+  AirData airData = AirData.zero();
 
   setOnboardingViewed() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -101,13 +75,82 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
 
     controller.forward();
     startAnimationController.forward();
+
+    slideUpdateStream = new StreamController<SlideUpdate>();
+
+    slideUpdateStream.stream.listen(onSlideUpdate);
+  }
+
+  onSlideUpdate(SlideUpdate event) {
+    print(
+        "Slide event: ${event.slidePercent}, ${event.slideDirection.toString()}, isUp: ${isOpen} ");
+    setState(() {
+      if (event.updateType == UpdateType.dragging) {
+        slideDirection = event.slideDirection;
+        slidePercent = event.slidePercent;
+
+        if (slideDirection == SlideDirection.slideUp) {
+          bottomPanelSlideValue = slidePercent;
+        } else if (slideDirection == SlideDirection.slideDown) {
+          bottomPanelSlideValue = 1.0 - slidePercent;
+        } else {
+          bottomPanelSlideValue = (isOpen) ? 1.0 : 0.0;
+        }
+      } else if (event.updateType == UpdateType.doneDragging) {
+        if (event.forceAnimate) {
+          dragger = new AnimatedPageDragger(
+            slideDirection: event.slideDirection,
+            slidePercent: event.slidePercent,
+            transitionGoal: TransitionGoal.open,
+            slideUpdateStream: slideUpdateStream,
+            vsync: this,
+          );
+          isOpen = false;
+          dragger.run();
+        } else if (slidePercent > 0.5 &&
+            slideDirection != SlideDirection.none) {
+          dragger = new AnimatedPageDragger(
+            slideDirection: slideDirection,
+            slidePercent: slidePercent,
+            transitionGoal: TransitionGoal.open,
+            slideUpdateStream: slideUpdateStream,
+            vsync: this,
+          );
+          isOpen = slideDirection == SlideDirection.slideUp;
+          dragger.run();
+        } else if (slidePercent <= 0.5 &&
+            slideDirection != SlideDirection.none) {
+          dragger = new AnimatedPageDragger(
+            slideDirection: slideDirection,
+            slidePercent: slidePercent,
+            transitionGoal: TransitionGoal.close,
+            slideUpdateStream: slideUpdateStream,
+            vsync: this,
+          );
+          isOpen = slideDirection != SlideDirection.slideUp;
+          dragger.run();
+        }
+      } else if (event.updateType == UpdateType.animating) {
+        slideDirection = event.slideDirection;
+        slidePercent = event.slidePercent;
+        if (slideDirection == SlideDirection.slideUp) {
+          bottomPanelSlideValue = slidePercent;
+        } else if (slideDirection == SlideDirection.slideDown) {
+          bottomPanelSlideValue = 1.0 - slidePercent;
+        } else {
+          bottomPanelSlideValue = 0.0;
+        }
+      } else if (event.updateType == UpdateType.doneAnimating) {
+        slideDirection = SlideDirection.none;
+        slidePercent = 0.0;
+        dragger.dispose();
+      }
+    });
   }
 
   onDataReceive(data) {
     setState(() {
-      print(data.toString());
-      gasLevel = data['airQuality'];
-      humidityLevel = data['humidity'].toDouble();
+      airData = new AirData.fromMap(data);
     });
   }
 
@@ -122,87 +165,115 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
     );
   }
 
+  SlideDirection slideDirection = SlideDirection.none;
+  double slidePercent = 0.0;
+  StreamController<SlideUpdate> slideUpdateStream;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GradientBackgroundWidget(
         animation: animation,
-        qualityPoints: calculatePoints(),
-        child: SafeArea(
-          child: Transform(
-            transform: new Matrix4.translationValues(
-                0.0, 60.0 * (1.0 - startAnimation.value), 0.0),
-            child: Opacity(
-              opacity: startAnimation.value,
-              child: Stack(
-                children: [
-                  Align(
-                    alignment: AlignmentDirectional.topCenter,
-                    child: AppTitleWidget(),
-                  ),
-                  Align(
-                    alignment: AlignmentDirectional.topEnd,
-                    child: IconButton(
-                      icon: Icon(Icons.settings),
-                      color: Colors.white,
-                      onPressed: () {
-                        openSettings(context);
-                      },
-                    ),
-                  ),
-                  Align(
-                    alignment: AlignmentDirectional.topStart,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                      child: SliderPercentWidget(
-                        percentage: calculatePoints() / 100.0,
+        qualityPoints: airData.overallQuality,
+        child: Stack(
+          children: <Widget>[
+            SafeArea(
+              child: Transform(
+                transform: new Matrix4.translationValues(
+                    0.0, 60.0 * (1.0 - startAnimation.value), 0.0),
+                child: Opacity(
+                  opacity: startAnimation.value,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: AlignmentDirectional.topCenter,
+                        child: AppTitleWidget(),
                       ),
-                    ),
-                  ),
-                  Align(
-                    alignment: AlignmentDirectional(0.0, -0.15),
-                    child: AirQualityWidget(
-                      qualityLevel: calculatePoints(),
-                    ),
-                  ),
-                  Align(
-                    alignment: AlignmentDirectional.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          bottom: 24.0, left: 8.0, right: 8.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          DataWidget(
-                            value: '${humidityLevel.round()}%',
-                            description: 'Humidity',
-                            iconAsset: 'assets/icons/water-percent.svg',
-                          ),
-                          DataWidget(
-                            value: getGasLevel(),
-                            description: 'Gases',
-                            iconAsset: 'assets/icons/periodic-table-co2.svg',
-                          ),
-                          DataWidget(
-                            value: 'No data',
-                            description: 'Dust',
-                            iconAsset: 'assets/icons/weather-windy.svg',
-                          ),
-                        ],
+                      Align(
+                        alignment: AlignmentDirectional.topEnd,
+                        child: IconButton(
+                          icon: Icon(Icons.settings),
+                          color: Colors.white,
+                          onPressed: () {
+                            openSettings(context);
+                          },
+                        ),
                       ),
-                    ),
+                      Align(
+                        alignment: AlignmentDirectional.topStart,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                          child: SliderPercentWidget(
+                            percentage: airData.overallQuality,
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional(0.0, -0.15),
+                        child: AirQualityWidget(
+                          qualityLevel: airData.overallQuality,
+                          qualityString: airData.overallQualityString,
+                        ),
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: 24.0, left: 8.0, right: 8.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Expanded(
+                                child: DataWidget(
+                                  value:
+                                      '${(airData.humidityNormalized * 100.0).round()}%',
+                                  description: 'Humidity',
+                                  iconAsset: 'assets/icons/water-percent.svg',
+                                  brightness: Brightness.light,
+                                ),
+                              ),
+                              Expanded(
+                                child: DataWidget(
+                                  value: airData.gasQualityString,
+                                  description: 'Gases',
+                                  iconAsset:
+                                      'assets/icons/periodic-table-co2.svg',
+                                  brightness: Brightness.light,
+                                ),
+                              ),
+                              Expanded(
+                                child: DataWidget(
+                                  value: 'No data',
+                                  description: 'Dust',
+                                  iconAsset: 'assets/icons/weather-windy.svg',
+                                  brightness: Brightness.light,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional(0.0, -0.18),
+                        child: RespirationCircleWidget(
+                          opacity: 0.07,
+                          minimum: 0.25,
+                        ),
+                      ),
+                    ],
                   ),
-                  Align(
-                    alignment: AlignmentDirectional(0.0, -0.18),
-                    child: RespirationCircleWidget(
-                      opacity: 0.07,
-                      minimum: 0.25,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+            BottomPanel(
+              scrollValue: bottomPanelSlideValue,
+            ),
+            BottomPanelGestureDetectorWidget(
+              slideUpdateStream: slideUpdateStream,
+              canSlideDown: isOpen,
+              canSlideUp: !isOpen,
+            ),
+          ],
         ),
       ),
     );
@@ -213,6 +284,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
     controller.dispose();
     startAnimationController.dispose();
     subscription.cancel();
+    slideUpdateStream.close();
     super.dispose();
   }
 }

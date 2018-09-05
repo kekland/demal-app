@@ -11,7 +11,7 @@ import me.aflak.bluetooth.DeviceCallback;
 
 public class StatusThread extends Thread {
     public interface AirDeviceCallback {
-        void onData(double airQuality, double airQualityNormalized, double humidity, double humidityNormalized, int temperature);
+        void onData(double gasNormalized, double gasQuality, double humidityNormalized, double humidityQuality, double overallQuality, int temperature);
     }
 
     AirDeviceCallback callback;
@@ -69,15 +69,19 @@ public class StatusThread extends Thread {
                 }
                 try {
                     String[] indices = message.split(",");
-                    int airQuality = Integer.parseInt(indices[0]);
-                    int temperature = Integer.parseInt(indices[1]);
-                    int humidity = Integer.parseInt(indices[2]);
+                    int gas = Integer.parseInt(indices[0]);
+                    int humidity = Integer.parseInt(indices[1]);
+                    int temperature = Integer.parseInt(indices[2]);
 
-                    double aqRange = airQuality / 1024.0;
-                    double humRange = humidity / 100.0;
+                    double gasNormalized = gas / 1024.0;
+                    double humNormalized = humidity / 100.0;
 
-                    double airQualityNormalized = AirQualityMath.mapToCustom(aqRange, )
+                    double gasQuality = AirQualityMath.mapToCustom(gasNormalized, 0.2, 0.2, 0.1);
+                    double humidityQuality = AirQualityMath.mapToCustom(humNormalized, 0.3, 0.1, 0.3);
 
+                    double airQuality = AirQualityMath.getOverallAirQuality(gasQuality, humidityQuality, temperature);
+
+                    callback.onData(gasNormalized, gasQuality, humNormalized, humidityQuality, airQuality, temperature);
                 }
                 catch(Exception e) {
                     Log.w("onMessage.Exception", e.toString());
@@ -109,22 +113,6 @@ public class StatusThread extends Thread {
 
     void tryConnect() {
         bluetooth.connectToAddress(deviceAddress);
-    }
-
-    int iter = 0;
-
-    void getData() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(cancelled) {
-                    return;
-                }
-                callback.onData(0.125f, (iter) % 100, 25);
-                iter++;
-                getData();
-            }
-        }, 500);
     }
     public boolean cancelled = false;
 

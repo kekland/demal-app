@@ -2,22 +2,9 @@ import 'package:flutter/material.dart';
 
 class AirQualityWidget extends StatelessWidget {
   final double qualityLevel;
-  AirQualityWidget({this.qualityLevel});
+  final String qualityString;
+  AirQualityWidget({this.qualityLevel, this.qualityString});
   
-  String getAirQualityLevel() {
-    if(qualityLevel > 75.0) {
-      return 'Healthy';
-    }
-    else if(qualityLevel > 50.0) {
-      return 'Fine';
-    }
-    else if(qualityLevel > 30.0) {
-      return 'Bad';
-    }
-    else {
-      return 'Dangerous';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +18,7 @@ class AirQualityWidget extends StatelessWidget {
           ),
         ),
         Text(
-          getAirQualityLevel(),
+          qualityString,
           style: TextStyle(
             color: Colors.white,
             fontSize: 56.0,
@@ -42,7 +29,7 @@ class AirQualityWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              qualityLevel.round().toString(),
+              (qualityLevel * 100.0).round().toString(),
               style: TextStyle(
                 fontSize: 36.0,
                 fontWeight: FontWeight.w500,

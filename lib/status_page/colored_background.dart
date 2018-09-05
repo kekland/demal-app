@@ -19,7 +19,7 @@ class GradientBackgroundWidget extends StatelessWidget {
         begin: AlignmentDirectional.topStart,
         end: AlignmentDirectional.bottomEnd,
       ),
-      qualityPoints / 100.0,
+      qualityPoints,
     );
   }
 

@@ -30,7 +30,6 @@ public class MainActivity extends FlutterActivity {
     GeneratedPluginRegistrant.registerWith(this);
 
     final Bluetooth bluetooth = new Bluetooth(this);
-      bluetooth.onStart();
 
     channel = new MethodChannel(getFlutterView(), CHANNEL);
 
@@ -77,6 +76,7 @@ public class MainActivity extends FlutterActivity {
                         result.success(null);
                     }
                     else if(methodCall.method.equals("listenForDevice")) {
+                        bluetooth.onStart();
                         bluetooth.enable();
                         isScanning = true;
                         Log.i("bt_listen", "started");
@@ -125,6 +125,7 @@ public class MainActivity extends FlutterActivity {
                             bluetooth.stopScanning();
                             bluetooth.removeDiscoveryCallback();
                             bluetooth.disable();
+                            bluetooth.onStop();
                             isScanning = false;
                         }
                     }
