@@ -104,6 +104,9 @@ class _OnboardingPageState extends State<OnboardingPage>
         } else if (selected == 2) {
           if (!MOCK_BLUETOOTH_DEVICE) {
             DemAlPlatform.stopScan();
+            if (scanSubscription != null) {
+              scanSubscription.cancel();
+            }
           }
         }
       });
@@ -116,6 +119,22 @@ class _OnboardingPageState extends State<OnboardingPage>
       nextPage(context);
     } else {
       scan();
+    }
+  }
+
+  scanFlutter() async {
+    FlutterBlue blue = FlutterBlue.instance;
+    if (!MOCK_BLUETOOTH_DEVICE) {
+      scanSubscription =
+          blue.scan(scanMode: ScanMode.balanced).listen((result) async {
+            print(result.device.name);
+        if (result.device.name == 'DemAl') {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('device_name', result.device.name);
+          prefs.setString('device_id', result.device.id.id);
+          nextPage(context);
+        }
+      });
     }
   }
 
@@ -145,6 +164,9 @@ class _OnboardingPageState extends State<OnboardingPage>
     switchController.dispose();
     if (!MOCK_BLUETOOTH_DEVICE) {
       DemAlPlatform.stopScan();
+      if (scanSubscription != null) {
+        scanSubscription.cancel();
+      }
     }
     super.dispose();
   }

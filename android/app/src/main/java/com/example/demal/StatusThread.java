@@ -11,7 +11,7 @@ import me.aflak.bluetooth.DeviceCallback;
 
 public class StatusThread extends Thread {
     public interface AirDeviceCallback {
-        void onData(float airQuality, int humidity, int temperature);
+        void onData(double airQuality, double airQualityNormalized, double humidity, double humidityNormalized, int temperature);
     }
 
     AirDeviceCallback callback;
@@ -67,14 +67,22 @@ public class StatusThread extends Thread {
                 if(cancelled) {
                     return;
                 }
-                String[] indices = message.split(",");
-                Log.i("1111111HUMIDITY", indices[2]);
-                int airQuality = Integer.parseInt(indices[0]);
-                int temperature = Integer.parseInt(indices[1]);
-                int humidity = Integer.parseInt(indices[2]);
+                try {
+                    String[] indices = message.split(",");
+                    int airQuality = Integer.parseInt(indices[0]);
+                    int temperature = Integer.parseInt(indices[1]);
+                    int humidity = Integer.parseInt(indices[2]);
 
-                float airQualityNormalized = airQuality / 1024f;
-                callback.onData(airQualityNormalized, humidity, temperature);
+                    double aqRange = airQuality / 1024.0;
+                    double humRange = humidity / 100.0;
+
+                    double airQualityNormalized = AirQualityMath.mapToCustom(aqRange, )
+
+                }
+                catch(Exception e) {
+                    Log.w("onMessage.Exception", e.toString());
+                    //continue
+                }
             }
 
             @Override

@@ -79,19 +79,22 @@ public class MainActivity extends FlutterActivity {
                     else if(methodCall.method.equals("listenForDevice")) {
                         bluetooth.enable();
                         isScanning = true;
+                        Log.i("bt_listen", "started");
                         bluetooth.setDiscoveryCallback(new DiscoveryCallback() {
                             @Override
                             public void onDiscoveryStarted() {
-
+                                Log.i("bt_listen", "started_discovery");
                             }
 
                             @Override
                             public void onDiscoveryFinished() {
+                                Log.i("bt_listen", "finished_discovery");
                             }
 
                             @Override
                             public void onDeviceFound(BluetoothDevice device) {
-                                if(device.getName() != null && device.getName().equals("HC-05")) {
+                                Log.i("bt_listen", device.getName());
+                                if(device.getName() != null && device.getName().equals("DemAl")) {
                                     result.success(device.getAddress());
                                     bluetooth.stopScanning();
                                     bluetooth.removeDiscoveryCallback();
@@ -111,7 +114,7 @@ public class MainActivity extends FlutterActivity {
 
                             @Override
                             public void onError(String message) {
-
+                                Log.i("bt_listen", "error: " + message);
                             }
                         });
 

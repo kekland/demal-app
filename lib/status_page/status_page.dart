@@ -46,7 +46,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
       humidityQuality = 1.0 - ((humidityLevel - 40.0) / 60.0);
     }
 
-    return (humidityQuality * 0.5 + gasQuality * 0.5) * 100;
+    return (humidityQuality * 0.2 + gasQuality * 0.7) * 100;
   }
 
   String getGasLevel() {
@@ -105,7 +105,7 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
 
   onDataReceive(data) {
     setState(() {
-      print(data['humidity']);
+      print(data.toString());
       gasLevel = data['airQuality'];
       humidityLevel = data['humidity'].toDouble();
     });
