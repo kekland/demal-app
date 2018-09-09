@@ -15,7 +15,7 @@ public class AirQualityMath {
         double n = p + t;
         double u = 1.0 - d;
         double x = clamp(xPass, 0.0, 1.0);
-        double y;
+        double y;   
         if(x >= m && x <= p) {
             y = Math.pow((x - m) / (p - m), 2.0) * d + u;
         }

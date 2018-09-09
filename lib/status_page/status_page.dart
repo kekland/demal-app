@@ -27,9 +27,6 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
 
   AnimationController startAnimationController;
   Animation<double> startAnimation;
-  AnimatedPageDragger dragger;
-  bool isOpen = false;
-  double bottomPanelSlideValue = 0.0;
 
   AirData airData = AirData.zero();
 
@@ -75,77 +72,6 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
 
     controller.forward();
     startAnimationController.forward();
-
-    slideUpdateStream = new StreamController<SlideUpdate>();
-
-    slideUpdateStream.stream.listen(onSlideUpdate);
-  }
-
-  onSlideUpdate(SlideUpdate event) {
-    print(
-        "Slide event: ${event.slidePercent}, ${event.slideDirection.toString()}, isUp: ${isOpen} ");
-    setState(() {
-      if (event.updateType == UpdateType.dragging) {
-        slideDirection = event.slideDirection;
-        slidePercent = event.slidePercent;
-
-        if (slideDirection == SlideDirection.slideUp) {
-          bottomPanelSlideValue = slidePercent;
-        } else if (slideDirection == SlideDirection.slideDown) {
-          bottomPanelSlideValue = 1.0 - slidePercent;
-        } else {
-          bottomPanelSlideValue = (isOpen) ? 1.0 : 0.0;
-        }
-      } else if (event.updateType == UpdateType.doneDragging) {
-        if (event.forceAnimate) {
-          dragger = new AnimatedPageDragger(
-            slideDirection: event.slideDirection,
-            slidePercent: event.slidePercent,
-            transitionGoal: TransitionGoal.open,
-            slideUpdateStream: slideUpdateStream,
-            vsync: this,
-          );
-          isOpen = false;
-          dragger.run();
-        } else if (slidePercent > 0.5 &&
-            slideDirection != SlideDirection.none) {
-          dragger = new AnimatedPageDragger(
-            slideDirection: slideDirection,
-            slidePercent: slidePercent,
-            transitionGoal: TransitionGoal.open,
-            slideUpdateStream: slideUpdateStream,
-            vsync: this,
-          );
-          isOpen = slideDirection == SlideDirection.slideUp;
-          dragger.run();
-        } else if (slidePercent <= 0.5 &&
-            slideDirection != SlideDirection.none) {
-          dragger = new AnimatedPageDragger(
-            slideDirection: slideDirection,
-            slidePercent: slidePercent,
-            transitionGoal: TransitionGoal.close,
-            slideUpdateStream: slideUpdateStream,
-            vsync: this,
-          );
-          isOpen = slideDirection != SlideDirection.slideUp;
-          dragger.run();
-        }
-      } else if (event.updateType == UpdateType.animating) {
-        slideDirection = event.slideDirection;
-        slidePercent = event.slidePercent;
-        if (slideDirection == SlideDirection.slideUp) {
-          bottomPanelSlideValue = slidePercent;
-        } else if (slideDirection == SlideDirection.slideDown) {
-          bottomPanelSlideValue = 1.0 - slidePercent;
-        } else {
-          bottomPanelSlideValue = 0.0;
-        }
-      } else if (event.updateType == UpdateType.doneAnimating) {
-        slideDirection = SlideDirection.none;
-        slidePercent = 0.0;
-        dragger.dispose();
-      }
-    });
   }
 
   onDataReceive(data) {
@@ -164,10 +90,6 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
       resizeToAvoidBottomPadding: true,
     );
   }
-
-  SlideDirection slideDirection = SlideDirection.none;
-  double slidePercent = 0.0;
-  StreamController<SlideUpdate> slideUpdateStream;
 
   @override
   Widget build(BuildContext context) {
@@ -265,14 +187,6 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            BottomPanel(
-              scrollValue: bottomPanelSlideValue,
-            ),
-            BottomPanelGestureDetectorWidget(
-              slideUpdateStream: slideUpdateStream,
-              canSlideDown: isOpen,
-              canSlideUp: !isOpen,
-            ),
           ],
         ),
       ),
@@ -284,7 +198,6 @@ class _StatusPageState extends State<StatusPage> with TickerProviderStateMixin {
     controller.dispose();
     startAnimationController.dispose();
     subscription.cancel();
-    slideUpdateStream.close();
     super.dispose();
   }
 }
